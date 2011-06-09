@@ -18,7 +18,7 @@ is_linear(MODEL *model){
 //Mdule and Classes
 static VALUE rb_mSvmLight;
 static VALUE rb_cModel;
-static VALUE rb_cDoc;
+static VALUE rb_cDocument;
 
 // GC functions
 void 
@@ -53,7 +53,7 @@ model_read_from_file(VALUE klass, VALUE filename){
 }
 
 /*
- *  Classify, gets a example (instance of Doc)
+ *  Classify, gets a example (instance of Document)
  *  and returns its classification
  */
 static VALUE
@@ -118,7 +118,7 @@ doc_create(VALUE klass, VALUE id, VALUE cost, VALUE words_ary ){
   Check_Type(words_ary, T_ARRAY);
 
   if (RARRAY_LEN(words_ary) == 0)
-    rb_raise(rb_eArgError, "Cannot create Doc from empty arrays");
+    rb_raise(rb_eArgError, "Cannot create Document from empty arrays");
 
   words = (WORD*) my_malloc(sizeof(WORD) * (RARRAY_LEN(words_ary) + 1));
 
@@ -145,7 +145,7 @@ Init_svmredlight(){
   rb_define_method(rb_cModel, "support_vector_count", model_support_vector_count, 0);
   rb_define_method(rb_cModel, "total_words", model_total_words, 0);
   rb_define_method(rb_cModel, "classify", model_classify_example, 1);
-  rb_cDoc = rb_define_class_under(rb_mSvmLight, "Doc", rb_cObject);
-  rb_define_singleton_method(rb_cDoc, "create", doc_create, 3);
+  rb_cDocument = rb_define_class_under(rb_mSvmLight, "Document", rb_cObject);
+  rb_define_singleton_method(rb_cDocument, "create", doc_create, 3);
 }
 

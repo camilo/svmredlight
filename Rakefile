@@ -14,12 +14,13 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
+  gem.version = '0.1.0'
   gem.name = "svmredlight"
   gem.homepage = "http://github.com/camilo/svmredlight"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
-  gem.email = "clopez@websense.com"
+  gem.summary = %Q{Ruby interface to SVMLight}
+  gem.description = %Q{Ruby interface to SVMLight}
+  gem.email = "camilo@camilolopez.com"
   gem.authors = ["Camilo Lopez"]
   # dependencies defined in Gemfile
 end
@@ -30,14 +31,6 @@ Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test'
   test.pattern = 'test/**/test_*.rb'
   test.verbose = true
-end
-
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-  test.rcov_opts << '--exclude "gems/*"'
 end
 
 task :default => :test
