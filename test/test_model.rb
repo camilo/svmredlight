@@ -1,22 +1,6 @@
 require './test/helper'
 require './lib/svmredlight'
 
-include SVMLight
-
-class TestDocument < Test::Unit::TestCase
-  def test_create
-    assert d = Document.create(0, 0.5, [1.0, 0, 0, 0, 0.5])
-  end
-
-  def test_create_with_no_array
-    assert_raise(TypeError) { Document.create(-1, 0, {})  }
-  end
-
-  def test_create_with_empty_array
-    assert_raise(ArgumentError) { Document.create(-1, 0, [])}
-  end
-end
-
 class TestModel < Test::Unit::TestCase
   def test_read
     assert m = Model.read_from_file('test/model')
