@@ -24,7 +24,7 @@ static VALUE rb_cDocument;
 void 
 model_free(MODEL *m){
   if(m)
-    free_model(m, m->sv_num);
+    free_model(m, (short)m->sv_num);
 }
 
 void
@@ -128,7 +128,7 @@ doc_create(VALUE klass, VALUE id, VALUE cost, VALUE words_ary ){
   }
   words[i].wnum = 0;
 
-  vec = create_svector(words, "", 1.0);
+  vec = create_svector(words, (char*)"", 1.0);
   c   = NUM2DBL(cost);
   docnum = FIX2INT(id);
   d = create_example(docnum, 0, c, 0, vec);
