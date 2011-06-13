@@ -4,8 +4,9 @@ require './lib/svmredlight'
 include SVMLight
 
 class TestDocument < Test::Unit::TestCase
+
   def test_create
-    assert d = Document.create(0, 0.5, [1.0, 0, 0, 0, 0.5])
+    assert Document.create(0, 0.5, [1.0, 0, 0, 0, 0.5])
   end
 
   def test_create_with_no_array

@@ -1,6 +1,8 @@
 = svmredlight
+ Very partial interface to SVM-light [http://svmlight.joachims.org/] it permits loading a
+ model (pre-created with svm_learn) from a file and using it for classification.
 
-Description goes here.
+ As of now it's know to work with SVM 6.02.
 
 == Contributing to svmredlight
  

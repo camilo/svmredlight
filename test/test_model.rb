@@ -10,9 +10,10 @@ class TestModel < Test::Unit::TestCase
 
   def test_classify
     m = Model.read_from_file('test/model')
-    assert m.classify( Document.create(-1, 0, [1.0, 0, 0, 0, 0.5 ])) 
-    assert m.classify( Document.create(-1, 0, [0, 0, 0, 0, 0.8, 0, 0 , 0 ])) 
-    assert m.classify( Document.create(-1, 0, [0, 0.5, 0, 0, 0, 0 , 0 ])) 
+    assert m.classify( Document.create(-1, 0, [1.0, 0, 0, 0, 0.5 ])).is_a?(Numeric)
+    assert m.classify( Document.create(-1, 0, [1.0, 0, 0, 0, 0.5 ])).is_a?(Numeric)
+    assert m.classify( Document.create(-1, 0, [0, 0, 0, 0, 0.8, 0, 0 , 0 ])).is_a?(Numeric) 
+    assert m.classify( Document.create(-1, 0, [0, 0.5, 0, 0, 0, 0 , 0 ])).is_a?(Numeric)
   end
 
   def test_new_is_private
