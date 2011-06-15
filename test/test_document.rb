@@ -1,5 +1,4 @@
 require './test/helper'
-require './lib/svmredlight'
 
 include SVMLight
 

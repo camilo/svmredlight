@@ -1,5 +1,4 @@
 require './test/helper'
-require './lib/svmredlight'
 
 class TestModel < Test::Unit::TestCase
   def test_read
