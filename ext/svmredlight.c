@@ -3,6 +3,7 @@
  */
 #include "ruby.h"
 #include "svm_light/svm_common.h"
+#include "string.h"
 
 /* Helper function to determine if a model uses linear kernel, this could be a #define
  * macro */
@@ -45,6 +46,481 @@ model_read_from_file(VALUE klass, VALUE filename){
   return Data_Wrap_Struct(klass, 0, model_free, m);
 }
 
+/* Helper function type checks a string meant to be used as a learn_parm, in case of error
+* returns 1 and sets the correct exception message in error, on sucess returns 0 and
+* copies the c string data of new_val to target*/
+int check_string_param(VALUE new_val, 
+                             const char *default_val, 
+                             char *target, 
+                             const char *name,
+                             char *error){
+
+  if(TYPE(new_val) == T_STRING){
+    strlcpy(target, StringValuePtr(new_val), 199);
+  }else if(NIL_P(new_val)){
+    strlcpy(target, default_val, 199);
+  }else{
+    sprintf(error, "The value of the learning option '%s' must be a string", name);
+    return 1;
+  }
+
+  return 0;
+}
+
+int check_long_param(VALUE new_val, 
+                           long default_val, 
+                           long *target, 
+                           const char *name,
+                           char *error){
+
+  if(TYPE(new_val) == T_FLOAT || TYPE(new_val) == T_FIXNUM){
+    *target = (long)FIX2INT(new_val);
+  }else if(NIL_P(new_val)){
+    *target = default_val;
+  }else{
+    sprintf(error, "The value of the learning option '%s' must be a numeric", name);
+    return 1;
+  }
+
+  return 0;
+}
+
+int check_double_param(VALUE new_val, 
+                             double default_val, 
+                             double *target, 
+                             const char *name,
+                             char *error){
+
+  if(TYPE(new_val) == T_FLOAT || TYPE(new_val) == T_FIXNUM){
+    *target = NUM2DBL(new_val);
+  }else if(NIL_P(new_val) ){
+    *target = default_val;
+  }else{
+    sprintf(error, "The value of the learning option '%s' must be a numeric", name);
+    return 1;
+  }
+
+  return 0;
+}
+
+int check_bool_param(VALUE new_val, 
+                           long default_val, 
+                           long *target, 
+                           const char *name,
+                           char *error){
+
+  if(TYPE(new_val) == T_TRUE){
+    *target = 1L;
+  }else if(TYPE(new_val) == T_FALSE){
+    *target = 0L;
+  }else if(NIL_P(new_val) ){
+    *target = default_val;
+  }else{
+    sprintf(error, "The value of the learning option '%s' must be a true or false", name);
+    return 1;
+  }
+
+  return 0;
+}
+
+/* Helper function in charge of setting up the learn parameters before they are passed to
+ * the svm_learn_classification function */
+int setup_learn_params(LEARN_PARM *c_learn_param, VALUE r_hash, char *error_message){
+  // Defaults from svm_learn_main
+  VALUE inter_val, temp_ary, svm_type, svm_type_ruby_str;
+  char *svm_type_str;
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("predfile"));
+  if(1 == check_string_param(inter_val, 
+                                   "trans_predictions", 
+                                   &c_learn_param->predfile, 
+                                   "predfile",
+                                   error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("alphafile"));
+  if(1 == check_string_param(inter_val, 
+                                   "", 
+                                   &c_learn_param->alphafile, 
+                                   "alphafile",
+                                   error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("biased_hyperplane"));
+  if(1 == check_bool_param(inter_val, 
+                                 1L, 
+                                 &(c_learn_param->biased_hyperplane), 
+                                 "biased_hyperplane",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("sharedslack"));
+  if(1 == check_bool_param(inter_val, 
+                                 0L, 
+                                 &(c_learn_param->sharedslack), 
+                                 "sharedslack",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("remove_inconsistent"));
+  if(1 == check_bool_param(inter_val, 
+                                 0L, 
+                                 &(c_learn_param->remove_inconsistent), 
+                                 "remove_inconsistent",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("skip_final_opt_check"));
+  if(1 == check_bool_param(inter_val, 
+                                 0L, 
+                                 &(c_learn_param->skip_final_opt_check), 
+                                 "skip_final_opt_check",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_newvarsinqp"));
+  if(1 == check_bool_param(inter_val, 
+                                 0L, 
+                                 &(c_learn_param->svm_newvarsinqp), 
+                                 "svm_newvarsinqp",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("compute_loo"));
+  if(1 == check_bool_param(inter_val, 
+                                 0L, 
+                                 &(c_learn_param->compute_loo), 
+                                 "compute_loo",
+                                 error_message)){
+    return 1;
+  }
+
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_maxqpsize"));
+  if(1 == check_long_param(inter_val, 
+                                 10L, 
+                                 &(c_learn_param->svm_maxqpsize), 
+                                 "svm_maxqpsize",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_iter_to_shrink"));
+  if(1 == check_long_param(inter_val, 
+                                 -9999, 
+                                 &(c_learn_param->svm_iter_to_shrink), 
+                                 "svm_iter_to_shrink",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("maxiter"));
+  if(1 == check_long_param(inter_val, 
+                                 100000, 
+                                 &(c_learn_param->maxiter), 
+                                 "maxiter",
+                                 error_message)){
+    return 1;
+  }
+
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("kernel_cache_size"));
+  if(1 == check_long_param(inter_val, 
+                                 40L, 
+                                 &(c_learn_param->kernel_cache_size), 
+                                 "kernel_cache_size",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("xa_depth"));
+  if(1 == check_long_param(inter_val, 
+                                 0L, 
+                                 &(c_learn_param->xa_depth), 
+                                 "xa_depth",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_maxqpsize"));
+  if(1 == check_long_param(inter_val, 
+                                 100L, 
+                                 &(c_learn_param->svm_maxqpsize), 
+                                 "svm_maxqpsize",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_c"));
+  if(1 == check_double_param(inter_val, 
+                                 0.0, 
+                                 &(c_learn_param->svm_c), 
+                                 "svm_c",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("eps"));
+  if(1 == check_double_param(inter_val, 
+                                 0.1, 
+                                 &(c_learn_param->eps), 
+                                 "eps",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("transduction_posratio"));
+  if(1 == check_double_param(inter_val, 
+                                 -1.0, 
+                                 &(c_learn_param->transduction_posratio), 
+                                 "transduction_posratio",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_costratio"));
+  if(1 == check_double_param(inter_val, 
+                                 1.0, 
+                                 &(c_learn_param->svm_costratio), 
+                                 "svm_costratio",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_costratio_unlab"));
+  if(1 == check_double_param(inter_val, 
+                                 1.0, 
+                                 &(c_learn_param->svm_costratio_unlab), 
+                                 "svm_costratio_unlab",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_unlabbound"));
+  if(1 == check_double_param(inter_val, 
+                                 1.0000000000000001e-05, 
+                                 &(c_learn_param->svm_unlabbound), 
+                                 "svm_unlabbound",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("epsilon_crit"));
+  if(1 == check_double_param(inter_val,
+                                 0.001, 
+                                 &(c_learn_param->epsilon_crit), 
+                                 "epsilon_crit",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("epsilon_a"));
+  if(1 == check_double_param(inter_val, 
+                                 1E-15, 
+                                 &(c_learn_param->epsilon_a), 
+                                 "epsilon_a",
+                                 error_message)){
+    return 1;
+  }
+
+  c_learn_param->rho=1.0;
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("rho"));
+  if(1 == check_double_param(inter_val, 
+                                 1.0, 
+                                 &(c_learn_param->rho), 
+                                 "rho",
+                                 error_message)){
+    return 1;
+  }
+
+  // Make type explicit here and default to classification
+  c_learn_param->type = CLASSIFICATION;
+
+  svm_type          = rb_hash_aref(r_hash, rb_str_new2("type"));
+  svm_type_ruby_str = rb_funcall(svm_type, rb_intern("to_s"), 0);
+  svm_type_str      = StringValuePtr(svm_type_ruby_str);
+
+  if(strncmp(svm_type_str, "classification", sizeof("classification"))){
+    c_learn_param->type = CLASSIFICATION;
+  } else if(strncmp(svm_type_str, "regression", sizeof("regression"))){
+    c_learn_param->type = REGRESSION;
+  } else if(strncmp(svm_type_str, "optimization", sizeof("optimization"))){
+    c_learn_param->type = OPTIMIZATION;
+  } else if(strncmp(svm_type_str, "preference", sizeof("preference"))){
+    c_learn_param->type = RANKING;
+  } else if(strncmp(svm_type_str, "preference_shared_slack", sizeof("preference_shared_slack"))){
+    c_learn_param->type = RANKING;
+    c_learn_param->sharedslack=1;
+  }
+
+  return 0;
+}
+
+int setup_kernel_params(KERNEL_PARM *c_kernel_param, VALUE r_hash, char *error_message){
+  VALUE inter_val;
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("poly_degree"));
+  if(1 == check_long_param(inter_val, 
+                                 3L, 
+                                 &(c_kernel_param->poly_degree), 
+                                 "poly_degree",
+                                 error_message)){
+    return 1;
+  }
+  
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("rbf_gamma"));
+  if(1 == check_double_param(inter_val, 
+                                 1.0, 
+                                 &(c_kernel_param->rbf_gamma), 
+                                 "rbf_gamma",
+                                 error_message)){
+    return 1;
+  }
+  
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("coef_lin"));
+  if(1 == check_double_param(inter_val, 
+                                 1.0, 
+                                 &(c_kernel_param->coef_lin), 
+                                 "coef_lin",
+                                 error_message)){
+    return 1;
+  }
+
+  inter_val = rb_hash_aref(r_hash, rb_str_new2("coef_const"));
+  if(1 == check_double_param(inter_val, 
+                                 1.0, 
+                                 &(c_kernel_param->coef_const), 
+                                 "coef_const",
+                                 error_message)){
+    return 1;
+  }
+  
+  // No support for custom kernel yet
+  strlcpy(c_kernel_param->custom,"empty", 49);
+  return 0;
+}
+
+static VALUE
+model_learn_classification(VALUE klass, 
+                           VALUE r_docs_and_classes,  // Docs + labels array of arrays
+                           VALUE learn_params,        // Options hash with learning options
+                           VALUE kernel_params,       // Options hash with kernel options
+                           VALUE use_cache,          // If no linear
+                           VALUE alpha
+                          ){
+  int i;
+  double *labels = NULL, *alpha_in = NULL;
+  long totdocs, totwords = 0,  fnum = 0;
+  MODEL  *m = NULL;
+  DOC    **c_docs = NULL;
+  LEARN_PARM c_learn_param;
+  KERNEL_PARM c_kernel_param;
+  VALUE temp_ary, exception = rb_eArgError;
+  char error_msg[300];
+
+  Check_Type(r_docs_and_classes, T_ARRAY);
+  Check_Type(learn_params, T_HASH);
+  Check_Type(kernel_params, T_HASH);
+
+  if(!(TYPE(alpha) == T_ARRAY || NIL_P(alpha) ))
+    rb_raise(rb_eTypeError, "alpha must be an numeric array or nil");
+  
+  if(TYPE(alpha) == T_ARRAY){
+
+    alpha_in = my_malloc(sizeof(double) * RARRAY_LEN(alpha));
+
+    for(i=0; i < RARRAY_LEN(alpha); i++){
+
+      if (TYPE(RARRAY_PTR(alpha)[i]) != T_FLOAT && 
+          TYPE(RARRAY_PTR(alpha)[i]) != T_FIXNUM ){
+        strncpy(error_msg,"All elements of the alpha array must be numeric ", 300);
+        goto bail;
+      }
+
+      alpha_in[i] = NUM2DBL(RARRAY_PTR(alpha)[i]);
+    }
+  }
+
+  if(setup_learn_params(&c_learn_param, learn_params, error_msg) != 0){
+    goto bail;
+  }
+
+  if(setup_kernel_params(&c_kernel_param, kernel_params, error_msg)!= 0){
+    goto bail;
+  }
+
+  c_kernel_param.kernel_type = LINEAR;
+  //TODO Setup kernel cache
+
+  totdocs = (long)RARRAY_LEN(r_docs_and_classes);
+
+  if (totdocs == 0){
+    strncpy(error_msg, "Cannot create Model from empty Documents array", 300);
+    goto bail;
+  }
+  
+  c_docs  = (DOC **)my_malloc(sizeof(DOC *)*(totdocs)); 
+  labels  = (double*)my_malloc(sizeof(double)*totdocs);
+
+  for(i=0; i < totdocs; i++){
+    temp_ary = RARRAY_PTR(r_docs_and_classes)[i] ;
+
+    if( TYPE(temp_ary) != T_ARRAY || 
+        RARRAY_LEN(temp_ary) < 2  ||
+        rb_obj_class(RARRAY_PTR(temp_ary)[0]) != rb_cDocument ||  
+        (TYPE(RARRAY_PTR(temp_ary)[1]) != T_FLOAT && TYPE(RARRAY_PTR(temp_ary)[1]) != T_FIXNUM )){
+      
+      strncpy(error_msg, "All elements of documents and labels should be arrays,"
+          "where the first element is a document and the second a number", 300);
+
+      goto bail;
+    }
+      
+    Data_Get_Struct(RARRAY_PTR(temp_ary)[0], DOC, c_docs[i]);
+    labels[i] = NUM2DBL(RARRAY_PTR(temp_ary)[1]);
+
+    fnum = 0;
+
+    while(c_docs[i]->fvec && c_docs[i]->fvec->words[fnum].wnum) {
+      fnum++;
+    }
+    
+    if(fnum > totwords)
+      totwords = fnum;
+
+    if(totwords > MAXFEATNUM){
+      strncpy(error_msg, "The number of features exceeds MAXFEATNUM the maximun "
+                    "number of features defined for this version of SVMLight", 300);
+      goto bail;
+    }
+  }
+  
+  m = (MODEL *)my_malloc(sizeof(MODEL));
+
+  svm_learn_classification(c_docs, labels, totdocs, totwords, 
+      &c_learn_param, &c_kernel_param, NULL, m, alpha_in);
+
+  free(alpha_in);
+  free(labels);
+  free(c_docs);
+  
+  return Data_Wrap_Struct(klass, 0, model_free, m);
+
+bail:
+
+  free(alpha_in);
+  free(labels);
+  free(c_docs);
+  rb_raise(exception, error_msg, "%s");
+}
+
 /*  Classify, gets a example (instance of Document) and returns its classification */
 static VALUE
 model_classify_example(VALUE self, VALUE example){
@@ -72,6 +548,7 @@ model_support_vector_count(VALUE self){
   MODEL *m;
   Data_Get_Struct(self, MODEL, m);
 
+ 
   return INT2FIX(m->sv_num);
 }
 
@@ -83,15 +560,13 @@ model_total_words(VALUE self){
   return INT2FIX(m->totwords);
 }
 
-/*
- * Creates a DOC from an array of words it also takes an id
+/* Creates a DOC from an array of words it also takes an id
  * -1 is normally OK for that value when using in filtering it also takes the C (cost)
  *  parameter for the SVM.
  */
 static VALUE
 doc_create(VALUE klass, VALUE id, VALUE cost, VALUE words_ary ){
-  int long docnum;
-  int i;
+  long docnum, i;
   double c;
   WORD *words;
   SVECTOR *vec;
@@ -104,14 +579,14 @@ doc_create(VALUE klass, VALUE id, VALUE cost, VALUE words_ary ){
 
   words = (WORD*) my_malloc(sizeof(WORD) * (RARRAY_LEN(words_ary) + 1));
 
-  for(i=0; i < (int)RARRAY_LEN(words_ary); i++){
+  for(i=0; i < (long)RARRAY_LEN(words_ary); i++){
     (words[i]).wnum     = i+1;
     (words[i]).weight   = (FVAL)(NUM2DBL(RARRAY_PTR(words_ary)[i]));
   }
   words[i].wnum = 0;
 
-  vec = create_svector(words, (char*)"", 1.0);
-  c   = NUM2DBL(cost);
+  vec    = create_svector(words, (char*)"", 1.0);
+  c      = NUM2DBL(cost);
   docnum = FIX2INT(id);
   d = create_example(docnum, 0, c, 0, vec);
 
@@ -124,6 +599,7 @@ Init_svmredlight(){
   rb_mSvmLight = rb_define_module("SVMLight");
   rb_cModel = rb_define_class_under(rb_mSvmLight, "Model", rb_cObject);
   rb_define_singleton_method(rb_cModel, "read_from_file", model_read_from_file, 1);
+  rb_define_singleton_method(rb_cModel, "learn_classification", model_learn_classification, 5);
   rb_define_method(rb_cModel, "support_vector_count", model_support_vector_count, 0);
   rb_define_method(rb_cModel, "total_words", model_total_words, 0);
   rb_define_method(rb_cModel, "classify", model_classify_example, 1);

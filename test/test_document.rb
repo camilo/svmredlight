@@ -1,5 +1,4 @@
 require './test/helper'
-
 include SVMLight
 
 class TestDocument < Test::Unit::TestCase
