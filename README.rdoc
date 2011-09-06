@@ -1,11 +1,25 @@
 == svmredlight
- Very partial interface to SVM-light [http://svmlight.joachims.org/] it permits loading a
- model (pre-created with svm_learn) from a file and using it for classification.
+
+ A partial interface to SVM-light [http://svmlight.joachims.org/] it permits loading a
+ model (pre-created with svm_learn) from a file and using it for classification and
+ training classification SVMs using linear kernels only.
 
  As of now it's know to work with SVM 6.02.
 
  Make sure to build the libsvmlight.o version of svmlight by using  
  "make libsvmlight_hideo" .
+
+== Document
+
+The Document class is a ruby representation of the DOC struct in svmlight, in order to
+create a Document the feature vectors should be represented as a Hash (or array of arrays)
+where the keys are the feature numbers and the values the feature weight.
+
+  Document.new({1 => 0.5, 100 => 0.7}, :docnum => 1, :costfactor => 0.3)
+
+== Model
+
+The Model class is a ruby representation of the MODEL struct in svmlight.
 
 == Contributing to svmredlight
  

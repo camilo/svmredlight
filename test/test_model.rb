@@ -4,12 +4,14 @@ include SVMLight
 class TestModel < Test::Unit::TestCase
 
   def setup
-    @docs_and_labels = 
-     [[ Document.create(-1, 0, [1,1]  ), 1.0 ],
-      [ Document.create(-1, 0, [-1,-1]), 0.0 ],
-      [ Document.create(-1, 0, [-1,-1]), 0.0 ],
-      [ Document.create(-1, 0, [1,1]  ), 1.0 ],
-      [ Document.create(-1, 0, [1,1]  ), 1.0 ],]
+    @features ||= [
+      [ [1,0.6], [11, 0.0], [34, 0.1] ],
+      [ [5,0.4], [15, 0.0], [30, 0.1] ],
+      [ [1,0.1], [13, 0.0], [31, 0.1] ],
+      [ [7,0.7], [15, 0.0], [35, 0.1] ],
+      [ [5,0.6], [19, 0.0], [44, 0.1] ],
+    ]
+    @docs_and_labels ||= @features.each_with_index.map{|f,i| [ Document.create(i + 1, 1, 0, 0,  f), i%2 * -1]}
   end
 
   def test_new_is_private
@@ -17,7 +19,7 @@ class TestModel < Test::Unit::TestCase
   end
 
   def test_learn_classification_with_alpha
-    m = Model.learn_classification(@docs_and_labels, {}, {}, true, [1, 0.0, 1])
+    m = Model.learn_classification(@docs_and_labels, {}, {}, true, [1, 0.0] * 50)
     assert_kind_of Model, m
 
     @docs_and_labels.each_with_index do |item, i|
@@ -28,6 +30,8 @@ class TestModel < Test::Unit::TestCase
   def test_learn_classification
     m = Model.learn_classification(@docs_and_labels, {}, {}, true, nil)
     assert_kind_of Model, m
+    assert_equal 44, m.total_words
+    assert_equal 5, m.totdoc
 
     @docs_and_labels.each_with_index do |item, i|
       assert_kind_of  Numeric, m.classify(item.first), "failed in item # #{i}"
@@ -40,14 +44,12 @@ class TestModel < Test::Unit::TestCase
     learn_params = {
        "predfile"            => "omg",
        "alphafile"           => "alpha",
-       "biased_hyperplane"   => true,
-       "sharedslack"         => true,
-      # TODO test when this is true it is hanging the learning for some reason
-      # "remove_inconsistent" => true
+       "biased_hyperplane"   => false,
+       "sharedslack"         => false,
+       "remove_inconsistent" => true
     }
 
     m = Model.learn_classification(@docs_and_labels, learn_params, {}, true, nil)
-                                   #, [1, 0.0, 1])
     assert_kind_of Model, m
 
     @docs_and_labels.each_with_index do |item, i|
@@ -55,10 +57,17 @@ class TestModel < Test::Unit::TestCase
     end
   end
 
+  def test_learn_classification_with_invalid_learn_params
+    learn_params = { "svm_c" =>  -1,}
+    assert_raises(ArgumentError){Model.learn_classification(@docs_and_labels, learn_params, {}, true, nil)}
+    learn_params = { "svm_iter_to_shrink" =>  -1,}
+    assert_raises(ArgumentError){Model.learn_classification(@docs_and_labels, learn_params, {}, true, nil)}
+  end
+
   def test_learn_classification_with_kernel_params
     
     kernel_params = {
-      "poly_degree" => 50,
+      "poly_degree" => 3,
       "rbf_gamma"   => 0.5,
       "coef_lin"    => 0.4,
       "coef_const"  => 0.56
@@ -99,22 +108,11 @@ class TestModel < Test::Unit::TestCase
 
   def test_classify
     m = Model.read_from_file('test/assets/model')
-    assert_kind_of Numeric, m.classify( Document.create(-1, 0, [1.0, 0, 0, 0, 0.5 ]))
-    assert_kind_of Numeric, m.classify( Document.create(-1, 0, [1.0, 0, 0, 0, 0.5 ]))
-    assert_kind_of Numeric, m.classify( Document.create(-1, 0, [0, 0, 0, 0, 0.8, 0, 0 , 0 ]))
-    assert_kind_of Numeric, m.classify( Document.create(-1, 0, [0, 0.5, 0, 0, 0, 0 , 0 ]))
+    assert_kind_of Numeric, m.classify( Document.create(-1, 1, 0, 0,[1.0, 0, 0, 0, 0.5 ].each_with_index.map{|v, i| [i + 1 ,v.to_f]} ) )
+    assert_kind_of Numeric, m.classify( Document.create(-1, 1, 0, 0,[1.0, 0, 0, 0, 0.5 ].each_with_index.map{|v, i| [i + 1,v.to_f]}) )
+    assert_kind_of Numeric, m.classify( Document.create(-1, 1, 0, 0,[1, 0, 0, 0, 0.8, 0, 0 , 0 ].each_with_index.map{|v, i| [i + 1,v.to_f]}) )
+    assert_kind_of Numeric, m.classify( Document.create(-1, 1, 0, 0,[1, 0.5, 0, 0, 0, 0 , 0 ].each_with_index.map{|v, i| [i + 1,v.to_f]}) )
   end
 
-
-#  This might kill your machine or at least keep it occupied for a long time, there has to
-#  be a way to optimize the loop extracting features, but even then chances are it will
-#  take a while, another option if you really want to run this tests is to recompile and
-#  deifine a much smaller MAXFEATNUM
-# def test_learn_classification_fails_when_more_than_max_feature
-#   # Testing against a MAXFEATNUM = 99999999
-#   d = Document.create(-1, 0, [1] * (99999999 + 1) )
-#   @docs_and_labels << [d, 1.0]
-#   Model.learn_classification(@docs_and_labels, {}, {}, false, nil)
-# end
 end
 

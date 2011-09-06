@@ -51,3 +51,5 @@ pkg
 ext/Makefile
 ext/svmlight.bundle
 ext/svmlight.o
+example/insurance.rb
+example/tic*
