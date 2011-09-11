@@ -8,6 +8,11 @@ class TestDocument < Test::Unit::TestCase
     assert_kind_of Document, d
   end
 
+  def test_create_should_accept_integer_as_feature_weight
+    d = Document.create(0, 0.5, 1, 0, [[1, 0 ], [4, 0.0] , [10, 0.0] ,[ 11, 0.5 ]])
+    assert_kind_of Document, d
+  end
+
   def test_create_using_new
     d = Document.new({1 => 566.0, 4 => 133.0}, {docnum: 10, slackid: 1, queryid: 2, costfactor: 0.5}) 
 

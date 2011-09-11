@@ -50,7 +50,7 @@ model_read_from_file(VALUE klass, VALUE filename){
 }
 
 /* Helper function type checks a string meant to be used as a learn_parm, in case of error
- * returns 1 and sets the correct exception message in error, on sucess returns 0 and
+ * returns 1 and sets the correct exception message in error, on success returns 0 and
  * copies the c string data of new_val to target*/
 int check_string_param(VALUE new_val, 
                              const char *default_val, 
@@ -71,7 +71,7 @@ int check_string_param(VALUE new_val,
 }
 
 /* Helper function type checks a long meant to be used as a learn_parm or kernel_parm, in
- * case of error returns 1 and sets the correct exception message in error, on sucess
+ * case of error returns 1 and sets the correct exception message in error, on success
  * returns 0 and copies the c string data of new_val to target*/
 int check_long_param(VALUE new_val, 
                            long default_val, 
@@ -91,7 +91,7 @@ int check_long_param(VALUE new_val,
 }
 
 /* Helper function type checks a double meant to be used as a learn_parm or kernel_parm, in
- * case of error returns 1 and sets the correct exception message in error, on sucess
+ * case of error returns 1 and sets the correct exception message in error, on success
  * returns 0 and copies the c string data of new_val to target*/
 int check_double_param(VALUE new_val, 
                              double default_val, 
@@ -112,7 +112,7 @@ int check_double_param(VALUE new_val,
 
 /* Helper function type checks an int meant to be used as a boolean learn_parm or
  * kernel_parm, in case of error returns 1 and sets the correct exception message in
- * error, on sucess returns 0 and copies the c string data of new_val to target*/
+ * error, on success returns 0 and copies the c string data of new_val to target*/
 int check_bool_param(VALUE new_val, 
                            long default_val, 
                            long *target, 
@@ -473,11 +473,11 @@ int check_kernel_and_learn_params_logic(KERNEL_PARM *c_kernel_param,
  * will be represented by hashes where the keys are the name of the respective field in
  * the options structure
  *
- * @param[Array] r_docs_and_classes is an array of arrays where each of the inner arrays must have two elements, the first a Document and the second a label (1, -1 ) for classification
- * @param[Hash] learn_params the learning options, each key is the name of a filed in the LEARN_PARM struct
- * @param[Hash] kernel_params the kernel options, each key is the name of a filed in the KERNEL_PARM struct
- * @param[Bool] use_cache, useless for now caches cannot be set for linear kernels
- * @param[Array] alpha, array of alpha values
+ * @param [Array] r_docs_and_classes is an array of arrays where each of the inner arrays must have two elements, the first a Document and the second a label (1, -1 ) for classification
+ * @param [Hash] learn_params the learning options, each key is the name of a filed in the LEARN_PARM struct
+ * @param [Hash] kernel_params the kernel options, each key is the name of a filed in the KERNEL_PARM struct
+ * @param [Bool] use_cache, useless for now caches cannot be set for linear kernels
+ * @param [Array] alpha, array of alpha values
  * */
 static VALUE
 model_learn_classification(VALUE klass, 
@@ -687,10 +687,12 @@ doc_create(VALUE klass, VALUE id, VALUE cost, VALUE slackid, VALUE queryid, VALU
     inner_array = RARRAY_PTR(words_ary)[i];
     Check_Type(inner_array, T_ARRAY);
     Check_Type(RARRAY_PTR(inner_array)[0], T_FIXNUM);
-    Check_Type(RARRAY_PTR(inner_array)[1], T_FLOAT);
+
+    if(!(TYPE(RARRAY_PTR(inner_array)[1]) == T_FLOAT ||  TYPE(RARRAY_PTR(inner_array)[1]) == T_FIXNUM ))
+      rb_raise(rb_eArgError, "Feature weights must be numeric");
     
     if(FIX2LONG(RARRAY_PTR(inner_array)[0]) <= 0 )
-      rb_raise(rb_eArgError, "word number has to be greater than zero");
+      rb_raise(rb_eArgError, "Feature number has to be greater than zero");
 
     (words[i]).wnum     = FIX2LONG(RARRAY_PTR(inner_array)[0]);
     (words[i]).weight   = (FVAL)(NUM2DBL(RARRAY_PTR(inner_array)[1]));

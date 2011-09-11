@@ -1,13 +1,15 @@
 == svmredlight
 
- A partial interface to SVM-light [http://svmlight.joachims.org/] it permits loading a
- model (pre-created with svm_learn) from a file and using it for classification and
- training classification SVMs using linear kernels only.
+A partial interface to SVM-light [http://svmlight.joachims.org/] using it you can: 
 
- As of now it's know to work with SVM 6.02.
+* Load an existent model (pre-created with svm_learn) from a file and using it for classification. 
+* Train a new classification SVM using linear kernels only (more kernels and SVM  types to come) 100% form Ruby.
 
- Make sure to build the libsvmlight.o version of svmlight by using  
- "make libsvmlight_hideo" .
+As of now it's know to work with SVM 6.02.
+
+Make sure to build the libsvmlight.o version of svmlight by using  
+"make libsvmlight_hideo".
+
 
 == Document
 
@@ -20,6 +22,10 @@ where the keys are the feature numbers and the values the feature weight.
 == Model
 
 The Model class is a ruby representation of the MODEL struct in svmlight.
+
+== Usage
+
+Take a look at the examples directory for a quick usage overview.
 
 == Contributing to svmredlight
  

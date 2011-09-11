@@ -1,4 +1,7 @@
 module SVMLight
+  # A document is the Ruby representation of a DOC structure in SVMlight, it contains a
+  # queryid, a slackid, a costfactor ( c ) and a vector with feature numbers and their
+  # correspondent weights.
   class Document
     
     # @param [Hash] vector a hash where the keys are feature numbers and the values its weights
@@ -16,6 +19,5 @@ module SVMLight
 
       create(docnum, costfactor, slackid, queryid, vector.to_a)
     end
-
   end
 end
