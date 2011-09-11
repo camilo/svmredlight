@@ -14,12 +14,8 @@ class TestModel < Test::Unit::TestCase
     @docs_and_labels ||= @features.each_with_index.map{|f,i| [ Document.create(i + 1, 1, 0, 0,  f), i%2 * -1]}
   end
 
-  def test_new_is_private
-    assert_raise(NoMethodError){ Model.new }
-  end
-
   def test_learn_classification_with_alpha
-    m = Model.learn_classification(@docs_and_labels, {}, {}, true, [1, 0.0] * 50)
+    m = Model.new(:classification, @docs_and_labels, {}, {}, [1, 0.0] * 50)
     assert_kind_of Model, m
 
     @docs_and_labels.each_with_index do |item, i|
@@ -28,7 +24,7 @@ class TestModel < Test::Unit::TestCase
   end
 
   def test_learn_classification
-    m = Model.learn_classification(@docs_and_labels, {}, {}, true, nil)
+    m = Model.new(:classification, @docs_and_labels, {}, {}, nil)
     assert_kind_of Model, m
     assert_equal 44, m.total_words
     assert_equal 5, m.totdoc
@@ -42,14 +38,14 @@ class TestModel < Test::Unit::TestCase
   def test_learn_classification_with_learn_params
     
     learn_params = {
-       "predfile"            => "omg",
+       "predfile"            => "custom_file",
        "alphafile"           => "alpha",
        "biased_hyperplane"   => false,
        "sharedslack"         => false,
        "remove_inconsistent" => true
     }
 
-    m = Model.learn_classification(@docs_and_labels, learn_params, {}, true, nil)
+    m = Model.new(:classification, @docs_and_labels, learn_params, {}, nil)
     assert_kind_of Model, m
 
     @docs_and_labels.each_with_index do |item, i|
@@ -58,10 +54,10 @@ class TestModel < Test::Unit::TestCase
   end
 
   def test_learn_classification_with_invalid_learn_params
-    learn_params = { "svm_c" =>  -1,}
-    assert_raises(ArgumentError){Model.learn_classification(@docs_and_labels, learn_params, {}, true, nil)}
-    learn_params = { "svm_iter_to_shrink" =>  -1,}
-    assert_raises(ArgumentError){Model.learn_classification(@docs_and_labels, learn_params, {}, true, nil)}
+    learn_params = {"svm_c" =>  -1}
+    assert_raises(ArgumentError){Model.new(:classification, @docs_and_labels, learn_params, {}, nil)}
+    learn_params = {"svm_iter_to_shrink" =>  -1}
+    assert_raises(ArgumentError){Model.new(:classification, @docs_and_labels, learn_params, {}, nil)}
   end
 
   def test_learn_classification_with_kernel_params
@@ -73,7 +69,7 @@ class TestModel < Test::Unit::TestCase
       "coef_const"  => 0.56
     }
 
-    m = Model.learn_classification(@docs_and_labels, {}, kernel_params, true, nil)
+    m = Model.new(:classification, @docs_and_labels, {}, kernel_params, nil)
     assert_kind_of Model, m
 
     @docs_and_labels.each_with_index do |item, i|
@@ -86,23 +82,23 @@ class TestModel < Test::Unit::TestCase
     learn_params = { "predfile"  => {}}
   
     assert_raise(ArgumentError) do
-      Model.learn_classification(@docs_and_labels, learn_params, {}, true, [1, 0.0, 1])
+      Model.new(:classification, @docs_and_labels, learn_params, {}, [1, 0.0, 1])
     end
 
   end
 
   def test_learn_classification_fails_when_element_is_not_array
     @docs_and_labels << []
-    assert_raises(ArgumentError){Model.learn_classification(@docs_and_labels, {}, {}, true, nil)}
+    assert_raises(ArgumentError){Model.new(:classification, @docs_and_labels, {}, {}, nil)}
   end
 
   def test_learn_classification_fails_when_element_is_arry_with_the_wrong_types
-    assert_raises(ArgumentError){Model.learn_classification(@docs_and_labels, {}, {}, true, [1, {}] )}
+    assert_raises(ArgumentError){Model.new(:classification, @docs_and_labels, {}, {}, [1, {}] )}
   end
 
   def test_read
     assert m     = Model.read_from_file('test/assets/model')
-    assert_equal 3877, m.support_vector_count
+    assert_equal 3877,  m.support_vectors_count
     assert_equal 39118, m.total_words
   end
 

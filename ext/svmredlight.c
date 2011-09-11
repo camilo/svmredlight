@@ -627,7 +627,7 @@ model_classify_example(VALUE self, VALUE example){
 }
 
 static VALUE
-model_support_vector_count(VALUE self){
+model_support_vectors_count(VALUE self){
   MODEL *m;
   Data_Get_Struct(self, MODEL, m);
  
@@ -745,7 +745,7 @@ Init_svmredlight(){
   rb_cModel = rb_define_class_under(rb_mSvmLight, "Model", rb_cObject);
   rb_define_singleton_method(rb_cModel, "read_from_file", model_read_from_file, 1);
   rb_define_singleton_method(rb_cModel, "learn_classification", model_learn_classification, 5);
-  rb_define_method(rb_cModel, "support_vector_count", model_support_vector_count, 0);
+  rb_define_method(rb_cModel, "support_vectors_count", model_support_vectors_count, 0);
   rb_define_method(rb_cModel, "total_words", model_total_words, 0);
   rb_define_method(rb_cModel, "classify", model_classify_example, 1);
   rb_define_method(rb_cModel, "totdoc", model_totdoc,0);
