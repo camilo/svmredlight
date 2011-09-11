@@ -1,4 +1,4 @@
-require './ext/svmredlight'
-require './lib/svmredlight/model'
-require './lib/svmredlight/document'
+require File.dirname(__FILE__) + '/../ext/svmredlight'
+require  'svmredlight/model'
+require  'svmredlight/document'
 
