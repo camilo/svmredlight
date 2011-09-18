@@ -16,7 +16,6 @@ module SVMLight
 
       learn_classification(documents_and_lables, learn_params, kernel_params, false, alphas)
     end
-    
     private_class_method :learn_classification
   end
 end

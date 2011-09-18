@@ -52,7 +52,8 @@ model_read_from_file(VALUE klass, VALUE filename){
 /* Helper function type checks a string meant to be used as a learn_parm, in case of error
  * returns 1 and sets the correct exception message in error, on success returns 0 and
  * copies the c string data of new_val to target*/
-int check_string_param(VALUE new_val, 
+int 
+check_string_param(VALUE new_val, 
                              const char *default_val, 
                              char *target, 
                              const char *name,
@@ -73,7 +74,8 @@ int check_string_param(VALUE new_val,
 /* Helper function type checks a long meant to be used as a learn_parm or kernel_parm, in
  * case of error returns 1 and sets the correct exception message in error, on success
  * returns 0 and copies the c string data of new_val to target*/
-int check_long_param(VALUE new_val, 
+int 
+check_long_param(VALUE new_val, 
                            long default_val, 
                            long *target, 
                            const char *name,
@@ -93,11 +95,12 @@ int check_long_param(VALUE new_val,
 /* Helper function type checks a double meant to be used as a learn_parm or kernel_parm, in
  * case of error returns 1 and sets the correct exception message in error, on success
  * returns 0 and copies the c string data of new_val to target*/
-int check_double_param(VALUE new_val, 
-                             double default_val, 
-                             double *target, 
-                             const char *name,
-                             char *error){
+int 
+check_double_param(VALUE new_val, 
+                         double default_val, 
+                         double *target, 
+                         const char *name,
+                         char *error){
   if(TYPE(new_val) == T_FLOAT || TYPE(new_val) == T_FIXNUM){
     *target = NUM2DBL(new_val);
   }else if(NIL_P(new_val) ){
@@ -113,11 +116,12 @@ int check_double_param(VALUE new_val,
 /* Helper function type checks an int meant to be used as a boolean learn_parm or
  * kernel_parm, in case of error returns 1 and sets the correct exception message in
  * error, on success returns 0 and copies the c string data of new_val to target*/
-int check_bool_param(VALUE new_val, 
-                           long default_val, 
-                           long *target, 
-                           const char *name,
-                           char *error){
+int 
+check_bool_param(VALUE new_val, 
+                       long default_val, 
+                       long *target, 
+                       const char *name,
+                       char *error){
   if(TYPE(new_val) == T_TRUE){
     *target = 1L;
   }else if(TYPE(new_val) == T_FALSE){
@@ -134,7 +138,8 @@ int check_bool_param(VALUE new_val,
 
 /* Helper function in charge of setting up the learn parameters before they are passed to
  * the svm_learn_classification copies part of the logic in svm_learn_main.c */
-int setup_learn_params(LEARN_PARM *c_learn_param, VALUE r_hash, char *error_message){
+int 
+setup_learn_params(LEARN_PARM *c_learn_param, VALUE r_hash, char *error_message){
   // Defaults taken from from svm_learn_main
   VALUE inter_val, temp_ary, svm_type, svm_type_ruby_str;
   char *svm_type_str;
@@ -343,7 +348,8 @@ int setup_learn_params(LEARN_PARM *c_learn_param, VALUE r_hash, char *error_mess
   return 0;
 }
 
-int setup_kernel_params(KERNEL_PARM *c_kernel_param, VALUE r_hash, char *error_message){
+int 
+setup_kernel_params(KERNEL_PARM *c_kernel_param, VALUE r_hash, char *error_message){
   VALUE inter_val;
   inter_val = rb_hash_aref(r_hash, rb_str_new2("poly_degree"));
   if(1 == check_long_param(inter_val, 
