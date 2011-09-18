@@ -54,10 +54,10 @@ model_read_from_file(VALUE klass, VALUE filename){
  * copies the c string data of new_val to target*/
 int 
 check_string_param(VALUE new_val, 
-                             const char *default_val, 
-                             char *target, 
-                             const char *name,
-                             char *error){
+                   const char *default_val, 
+                   char *target, 
+                   const char *name,
+                   char *error){
 
   if(TYPE(new_val) == T_STRING){
     strlcpy(target, StringValuePtr(new_val), 199);
@@ -146,201 +146,201 @@ setup_learn_params(LEARN_PARM *c_learn_param, VALUE r_hash, char *error_message)
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("predfile"));
   if(1 == check_string_param(inter_val, 
-                                   "trans_predictions", 
-                                   &c_learn_param->predfile, 
-                                   "predfile",
-                                   error_message)){
+                             "trans_predictions", 
+                             (char *)&c_learn_param->predfile, 
+                             "predfile",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("alphafile"));
   if(1 == check_string_param(inter_val, 
-                                   "", 
-                                   &c_learn_param->alphafile, 
-                                   "alphafile",
-                                   error_message)){
+                            "", 
+                            (char*)&c_learn_param->alphafile, 
+                            "alphafile",
+                            error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("biased_hyperplane"));
   if(1 == check_bool_param(inter_val, 
-                                 1L, 
-                                 &(c_learn_param->biased_hyperplane), 
-                                 "biased_hyperplane",
-                                 error_message)){
+                           1L, 
+                           &(c_learn_param->biased_hyperplane), 
+                           "biased_hyperplane",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("sharedslack"));
   if(1 == check_bool_param(inter_val, 
-                                 0L, 
-                                 &(c_learn_param->sharedslack), 
-                                 "sharedslack",
-                                 error_message)){
+                           0L, 
+                           &(c_learn_param->sharedslack), 
+                           "sharedslack",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("remove_inconsistent"));
   if(1 == check_bool_param(inter_val, 
-                                 0L, 
-                                 &(c_learn_param->remove_inconsistent), 
-                                 "remove_inconsistent",
-                                 error_message)){
+                           0L, 
+                           &(c_learn_param->remove_inconsistent), 
+                           "remove_inconsistent",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("skip_final_opt_check"));
   if(1 == check_bool_param(inter_val, 
-                                 0L, 
-                                 &(c_learn_param->skip_final_opt_check), 
-                                 "skip_final_opt_check",
-                                 error_message)){
+                           0L, 
+                           &(c_learn_param->skip_final_opt_check), 
+                           "skip_final_opt_check",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_newvarsinqp"));
   if(1 == check_bool_param(inter_val, 
-                                 0L, 
-                                 &(c_learn_param->svm_newvarsinqp), 
-                                 "svm_newvarsinqp",
-                                 error_message)){
+                           0L, 
+                           &(c_learn_param->svm_newvarsinqp), 
+                           "svm_newvarsinqp",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("compute_loo"));
   if(1 == check_bool_param(inter_val, 
-                                 0L, 
-                                 &(c_learn_param->compute_loo), 
-                                 "compute_loo",
-                                 error_message)){
+                           0L, 
+                           &(c_learn_param->compute_loo), 
+                           "compute_loo",
+                           error_message)){
     return 1;
   }
 
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_maxqpsize"));
   if(1 == check_long_param(inter_val, 
-                                 10L, 
-                                 &(c_learn_param->svm_maxqpsize), 
-                                 "svm_maxqpsize",
-                                 error_message)){
+                           10L, 
+                           &(c_learn_param->svm_maxqpsize), 
+                           "svm_maxqpsize",
+                           error_message)){
     return 1;
   }
   
   inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_iter_to_shrink"));
   if(1 == check_long_param(inter_val, 
-                                 -9999, 
-                                 &(c_learn_param->svm_iter_to_shrink), 
-                                 "svm_iter_to_shrink",
-                                 error_message)){
+                           -9999, 
+                           &(c_learn_param->svm_iter_to_shrink), 
+                           "svm_iter_to_shrink",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("maxiter"));
   if(1 == check_long_param(inter_val, 
-                                 100000, 
-                                 &(c_learn_param->maxiter), 
-                                 "maxiter",
-                                 error_message)){
+                           100000, 
+                           &(c_learn_param->maxiter), 
+                           "maxiter",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("kernel_cache_size"));
   if(1 == check_long_param(inter_val, 
-                                 40L, 
-                                 &(c_learn_param->kernel_cache_size), 
-                                 "kernel_cache_size",
-                                 error_message)){
+                           40L, 
+                           &(c_learn_param->kernel_cache_size), 
+                           "kernel_cache_size",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("xa_depth"));
   if(1 == check_long_param(inter_val, 
-                                 0L, 
-                                 &(c_learn_param->xa_depth), 
-                                 "xa_depth",
-                                 error_message)){
+                           0L, 
+                           &(c_learn_param->xa_depth), 
+                           "xa_depth",
+                           error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_c"));
   if(1 == check_double_param(inter_val, 
-                                 0.0, 
-                                 &(c_learn_param->svm_c), 
-                                 "svm_c",
-                                 error_message)){
+                             0.0, 
+                             &(c_learn_param->svm_c), 
+                             "svm_c",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("eps"));
   if(1 == check_double_param(inter_val, 
-                                 0.1, 
-                                 &(c_learn_param->eps), 
-                                 "eps",
-                                 error_message)){
+                             0.1, 
+                             &(c_learn_param->eps), 
+                             "eps",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("transduction_posratio"));
   if(1 == check_double_param(inter_val, 
-                                 -1.0, 
-                                 &(c_learn_param->transduction_posratio), 
-                                 "transduction_posratio",
-                                 error_message)){
+                             -1.0, 
+                             &(c_learn_param->transduction_posratio), 
+                             "transduction_posratio",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_costratio"));
   if(1 == check_double_param(inter_val, 
-                                 1.0, 
-                                 &(c_learn_param->svm_costratio), 
-                                 "svm_costratio",
-                                 error_message)){
+                             1.0, 
+                             &(c_learn_param->svm_costratio), 
+                             "svm_costratio",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_costratio_unlab"));
   if(1 == check_double_param(inter_val, 
-                                 1.0, 
-                                 &(c_learn_param->svm_costratio_unlab), 
-                                 "svm_costratio_unlab",
-                                 error_message)){
+                             1.0, 
+                             &(c_learn_param->svm_costratio_unlab), 
+                             "svm_costratio_unlab",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("svm_unlabbound"));
   if(1 == check_double_param(inter_val, 
-                                 1.0000000000000001e-05, 
-                                 &(c_learn_param->svm_unlabbound), 
-                                 "svm_unlabbound",
-                                 error_message)){
+                             1.0000000000000001e-05, 
+                             &(c_learn_param->svm_unlabbound), 
+                             "svm_unlabbound",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("epsilon_crit"));
   if(1 == check_double_param(inter_val,
-                                 0.001, 
-                                 &(c_learn_param->epsilon_crit), 
-                                 "epsilon_crit",
-                                 error_message)){
+                             0.001, 
+                             &(c_learn_param->epsilon_crit), 
+                             "epsilon_crit",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("epsilon_a"));
   if(1 == check_double_param(inter_val, 
-                                 1E-15, 
-                                 &(c_learn_param->epsilon_a), 
-                                 "epsilon_a",
-                                 error_message)){
+                             1E-15, 
+                             &(c_learn_param->epsilon_a), 
+                             "epsilon_a",
+                             error_message)){
     return 1;
   }
 
   c_learn_param->rho=1.0;
   inter_val = rb_hash_aref(r_hash, rb_str_new2("rho"));
   if(1 == check_double_param(inter_val, 
-                                 1.0, 
-                                 &(c_learn_param->rho), 
-                                 "rho",
-                                 error_message)){
+                             1.0, 
+                             &(c_learn_param->rho), 
+                             "rho",
+                             error_message)){
     return 1;
   }
 
@@ -353,37 +353,37 @@ setup_kernel_params(KERNEL_PARM *c_kernel_param, VALUE r_hash, char *error_messa
   VALUE inter_val;
   inter_val = rb_hash_aref(r_hash, rb_str_new2("poly_degree"));
   if(1 == check_long_param(inter_val, 
-                                 3L, 
-                                 &(c_kernel_param->poly_degree), 
-                                 "poly_degree",
-                                 error_message)){
+                           3L, 
+                           &(c_kernel_param->poly_degree), 
+                           "poly_degree",
+                           error_message)){
     return 1;
   }
   
   inter_val = rb_hash_aref(r_hash, rb_str_new2("rbf_gamma"));
   if(1 == check_double_param(inter_val, 
-                                 1.0, 
-                                 &(c_kernel_param->rbf_gamma), 
-                                 "rbf_gamma",
-                                 error_message)){
+                             1.0, 
+                             &(c_kernel_param->rbf_gamma), 
+                             "rbf_gamma",
+                             error_message)){
     return 1;
   }
   
   inter_val = rb_hash_aref(r_hash, rb_str_new2("coef_lin"));
   if(1 == check_double_param(inter_val, 
-                                 1.0, 
-                                 &(c_kernel_param->coef_lin), 
-                                 "coef_lin",
-                                 error_message)){
+                             1.0, 
+                             &(c_kernel_param->coef_lin), 
+                             "coef_lin",
+                             error_message)){
     return 1;
   }
 
   inter_val = rb_hash_aref(r_hash, rb_str_new2("coef_const"));
   if(1 == check_double_param(inter_val, 
-                                 1.0, 
-                                 &(c_kernel_param->coef_const), 
-                                 "coef_const",
-                                 error_message)){
+                             1.0, 
+                             &(c_kernel_param->coef_const), 
+                             "coef_const",
+                             error_message)){
     return 1;
   }
   
