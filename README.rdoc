@@ -7,8 +7,14 @@ A partial interface to SVM-light [http://svmlight.joachims.org/] using it you ca
 
 As of now it's know to work with SVM 6.02.
 
+=== Installing svmlight as a library
+
 Make sure to build the libsvmlight.o version of svmlight by using  
 "make libsvmlight_hideo".
+
+Make sure the .h files in the svmlight distribution are in your include path, inside a subdirectory called svm_light,
+and the object code for the library is in your include path (/usr/lib for instance).
+
 
 
 == Document
