@@ -9,12 +9,9 @@ is_linear(MODEL *model){
   return model->kernel_parm.kernel_type == 0; 
 }
 
-// Modules and Classes
 static VALUE rb_mSvmLight;
 static VALUE rb_cModel;
 static VALUE rb_cDocument;
-
-// GC functions
 
 /* Not using deep free anymore, let ruby call free on the documents otherwise we might end
  * up having double free problems, from svm_learn_main: Warning: The model contains
@@ -751,7 +748,7 @@ Init_svmredlight(){
   rb_mSvmLight = rb_define_module("SVMLight");
   //Model
   rb_cModel = rb_define_class_under(rb_mSvmLight, "Model", rb_cObject);
-  rb_define_singleton_method(rb_cModel, "read_from_file", model_read_from_file, 1);
+  rb_define_singleton_method(rb_cModel, "from_file", model_read_from_file, 1);
   rb_define_singleton_method(rb_cModel, "learn_classification", model_learn_classification, 5);
   rb_define_method(rb_cModel, "support_vectors_count", model_support_vectors_count, 0);
   rb_define_method(rb_cModel, "total_words", model_total_words, 0);
