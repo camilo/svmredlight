@@ -1,7 +1,6 @@
 module SVMLight
   
   class MissingModelFile < StandardError; end
-
   # A model is the product of training a SVM, once created it can take documents as inputs
   # and act of them (by for instance classifying them). Models can also be read from files
   # created by svm_learn.
@@ -34,7 +33,7 @@ module SVMLight
     # TODO: Come up with a proper replacement for those methods, probably simply reimplementing them in svmredlight.c 
     # and raising an exception when files cannot be open.
 
-    # Will load an existen model from a file
+    # Will load an existent model from a file
     # @param [String] pahtofile path to the model file 
     def self.read_from_file(pahtofile)
       if File.exists?(pahtofile) && File.file?(pahtofile) 
@@ -44,11 +43,13 @@ module SVMLight
 
         raise MissingModelFile, "the #{pahtofile} does not exists or is not a file"
       end
-
     end
 
     private :to_file
 
+    # Will create a file containing the model info, the model info can be turn back into a model by using
+    # Model.read_from_file
+    # @param [String] pahtofile
     def write_to_file(pahtofile)
       dir = File.dirname(pahtofile)
 
@@ -60,8 +61,5 @@ module SVMLight
 
       end
     end
-
-
-
   end
 end

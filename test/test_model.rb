@@ -17,6 +17,7 @@ class TestModel < Test::Unit::TestCase
 
     should "classify successfully after reading the model from a file" do
       m = Model.read_from_file(@file_name)
+
       assert_kind_of Numeric, m.classify( Document.create(-1, 1, 0, 0,[1.0, 0, 0, 0, 0.5 ].each_with_index.map{|v, i| [i + 1 ,v.to_f]} ) )
       assert_kind_of Numeric, m.classify( Document.create(-1, 1, 0, 0,[1.0, 0, 0, 0, 0.5 ].each_with_index.map{|v, i| [i + 1,v.to_f]}) )
       assert_kind_of Numeric, m.classify( Document.create(-1, 1, 0, 0,[1, 0, 0, 0, 0.8, 0, 0 , 0 ].each_with_index.map{|v, i| [i + 1,v.to_f]}) )
