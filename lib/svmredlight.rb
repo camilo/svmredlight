@@ -1,4 +1,4 @@
 require File.dirname(__FILE__) + '/../ext/svmredlight'
-require  'svmredlight/model'
-require  'svmredlight/document'
+require File.dirname(__FILE__) + '/svmredlight/model'
+require File.dirname(__FILE__) + '/svmredlight/document'
 
