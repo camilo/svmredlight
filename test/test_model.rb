@@ -28,6 +28,41 @@ class TestModel < Test::Unit::TestCase
     end
   end
 
+  context "writting a model to a file" do 
+    setup do
+      @features ||= [
+        [ [1,0.6], [11, 0.0], [34, 0.1] ],
+        [ [5,0.4], [15, 0.0], [30, 0.1] ],
+        [ [1,0.1], [13, 0.0], [31, 0.1] ],
+        [ [7,0.7], [15, 0.0], [35, 0.1] ],
+        [ [5,0.6], [19, 0.0], [44, 0.1] ],
+      ]
+
+      @docs_and_labels ||= @features.each_with_index.map do |feature, index| 
+        [ Document.create(index + 1, 1, 0, 0,  feature), index%2 * -1]
+      end
+
+      @filepath = './test/assets/written_model'
+      @model    = Model.new(:classification, @docs_and_labels, {}, {}, nil)
+    end
+
+    should "write a model from memmory to a file" do
+      @model.write_to_file(@filepath)
+
+      assert File.exists?(@filepath)
+      assert File.file?(@filepath)
+      # TODO: Implement actual model equality
+      assert_equal @model.support_vectors_count, Model.read_from_file(@filepath).support_vectors_count
+    end
+
+    # Need to find a good way to test this without relaying too much in the environment
+    should "raise ModelWriteError when it is impossible to write a model file" 
+
+    teardown do
+      `rm #{@filepath} &> /dev/null`
+    end
+  end
+
   context "when learning from new documents" do
 
     setup do
