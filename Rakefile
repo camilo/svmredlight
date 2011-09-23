@@ -14,7 +14,7 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.version = '0.1.0'
+  gem.version = '0.1.1'
   gem.name = "svmredlight"
   gem.homepage = "http://github.com/camilo/svmredlight"
   gem.license = "MIT"
