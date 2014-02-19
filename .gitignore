@@ -56,3 +56,4 @@ examples/insurance.rb
 examples/tic*
 
 
+*.gem

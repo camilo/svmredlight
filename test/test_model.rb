@@ -3,6 +3,20 @@ include SVMLight
 
 class TestModel < Test::Unit::TestCase
 
+  def line_to_ary(line, has_target = false)
+    records = line.split(' ')
+    target =  records.shift if has_target
+
+    ary = []
+
+    records.each_with_index do |record, i|
+      pos, value = record.split(':')
+      ary << [pos.to_i, value.to_f]
+    end
+
+    [ary, target]
+  end
+
   context "reading a model from file" do
 
     setup do 
@@ -154,6 +168,29 @@ class TestModel < Test::Unit::TestCase
       end
     end
 
+    should "learn classification and compute loo measures" do
+      learn_params = {'compute_loo' => true}
+
+      # using @docs_and_labels does not allow svm_light to compute loo!!
+      training_documents_and_labels = []
+      File.open('./test/assets/train.dat', 'r').each_with_index do |line, i|
+        next if line.chars.first == '#'
+        ary, target = line_to_ary(line, true)
+        training_documents_and_labels << [Document.create(i + 1, 1, 0, 1, ary), target.to_i]
+      end
+
+      m = Model.new(:classification, training_documents_and_labels, learn_params, {}, nil)
+      assert_kind_of Model, m
+
+      @docs_and_labels.each_with_index do |item, i|
+        assert_kind_of  Numeric, m.classify(item.first), "failed in item # #{i}"
+      end
+
+      assert(m.loo_recall.between?(0, 100))
+      assert(m.loo_precision.between?(0, 100))
+      assert(m.loo_error.between?(0, 100))
+
+    end
   end
 end
 

@@ -673,6 +673,30 @@ model_maxdiff(VALUE self){
   return DBL2NUM(m->maxdiff);
 }
 
+static VALUE
+model_loo_error(VALUE self){
+  MODEL *m;
+  Data_Get_Struct(self, MODEL, m);
+
+  return DBL2NUM(m->loo_error);
+}
+
+static VALUE
+model_loo_recall(VALUE self){
+  MODEL *m;
+  Data_Get_Struct(self, MODEL, m);
+
+  return DBL2NUM(m->loo_recall);
+}
+
+static VALUE
+model_loo_precision(VALUE self){
+  MODEL *m;
+  Data_Get_Struct(self, MODEL, m);
+
+  return DBL2NUM(m->loo_precision);
+}
+
 /* Creates a DOC from an array of words it also takes an id
  * -1 is normally OK for that value when using in filtering it also takes the C (cost)
  * parameter for the SVM.
@@ -768,6 +792,9 @@ Init_svmredlight(){
   rb_define_method(rb_cModel, "classify", model_classify_example, 1);
   rb_define_method(rb_cModel, "totdoc", model_totdoc,0);
   rb_define_method(rb_cModel, "maxdiff", model_maxdiff,0);
+  rb_define_method(rb_cModel, "loo_error", model_loo_error,0);
+  rb_define_method(rb_cModel, "loo_recall", model_loo_recall,0);
+  rb_define_method(rb_cModel, "loo_precision", model_loo_precision,0);
   //Document
   rb_cDocument = rb_define_class_under(rb_mSvmLight, "Document", rb_cObject);
   rb_define_singleton_method(rb_cDocument, "create", doc_create, 5);
